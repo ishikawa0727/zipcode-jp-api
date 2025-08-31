@@ -1,0 +1,29 @@
+{
+  "name": "zipcode-jp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "exec": "babel-node --extensions \".ts\" index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.21.0",
+    "@babel/node": "^7.20.7",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-typescript": "^7.21.0",
+    "@types/fs-extra": "^11.0.1",
+    "@types/node": "^18.14.0"
+  },
+  "dependencies": {
+    "@types/decompress": "^4.2.4",
+    "@types/encoding-japanese": "^2.0.1",
+    "csv-parse": "^5.3.5",
+    "csv-stringify": "^6.2.4",
+    "decompress": "^4.2.1",
+    "encoding-japanese": "^2.0.0",
+    "fs-extra": "^11.1.0",
+    "zlib": "^1.0.5"
+  }
+}

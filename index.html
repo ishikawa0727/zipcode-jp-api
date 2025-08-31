@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>zipcodejp</title>
+</head>
+<body>
+  <dl>
+    <dt>
+      郵便番号
+    </dt>
+    <dd class="zip_code_wrap">
+      <input id="zipCode" type="number" list="zipCodeSuggest">
+      <datalist id="zipCodeSuggest">
+      </datalist>
+    </dd>
+    <dt>
+      都道府県
+    </dt>
+    <dd>
+      <input id="prefecture" type="text">
+    </dd>
+    <dt>
+      市区町村
+    </dt>
+    <dd>
+      <input id="city" type="text">
+    </dd>
+    <dt>
+      町名
+    </dt>
+    <dd>
+      <input id="town" type="text">
+    </dd>
+  </dl>
+</body>
+<style>
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+</style>
+<script>
+  const KEYS = [
+    'zip_code',
+    'prefecture',
+    'city',
+    'town',
+  ];
+
+  const createObserveValue = () => {
+    let previousValue = ''
+    const observeValue = (element, onChange) => {
+      if(element.value !== previousValue) {
+        onChange({previous: previousValue, current: element.value})
+        previousValue = element.value
+      }
+      window.requestAnimationFrame(() => observeValue(element, onChange))
+    }
+    return observeValue
+  }
+  const addSuggestionList = (addressList) => {
+    const options = addressList.map((address) => {
+      const option = new Option(
+        `${address.prefecture} ${address.city} ${address.town}`,
+        address.zip_code
+      )
+      return option
+    })
+    options.forEach(option => {
+      zipCodeSuggest.appendChild(option)
+    })
+  }
+  const removeSuggestionList = () => {
+    while( zipCodeSuggest.firstChild ){
+      zipCodeSuggest.removeChild( zipCodeSuggest.firstChild );
+    }
+  }
+  const reflectAddressData = (zipCodeData) => {
+    prefecture.value = zipCodeData.prefecture
+    city.value = zipCodeData.city
+    town.value = zipCodeData.town
+  }
+  const createFetchAddressList = () => {
+    let addressList
+    let previousUpperDigits
+    const fetchAddressList = async(zipCode) => {
+      const upperDigits = zipCode.slice(0, 3)
+      if(!addressList || upperDigits !== previousUpperDigits) {
+        try {
+          const response = await fetch(`https://ishikawa-yuya.github.io/zipcodejp/data/min-json/${upperDigits}.json`)
+          const rows = await response.json()
+          addressList = rows.map((values) => values.reduce((result, value, index) => {
+            result[KEYS[index]] = value
+            return result
+          }, {}))
+          addressList.sort((a, b) => a.zip_code < b.zip_code ? -1 : 1)
+        } catch(err) {
+          addressList = []
+        } finally {
+          previousUpperDigits = upperDigits
+        }
+      }
+      return addressList
+    }
+    return fetchAddressList
+  }
+  const fetchAddressList = createFetchAddressList()
+  const observeValue = createObserveValue()
+  observeValue(zipCode, async ({previous}) => {
+    removeSuggestionList()
+    reflectAddressData({prefecture: '', city: '', town: ''})
+    if(zipCode.value.length < 3) {
+      return
+    }
+    zipCode.value = zipCode.value.slice(0, 7)
+    const addressList = await fetchAddressList(zipCode.value)
+    const filteredList = addressList.filter(data => data.zip_code.startsWith(zipCode.value))
+    if(filteredList.length === 1 && zipCode.value.length === 7) {
+      const data = filteredList[0]
+      reflectAddressData(data)
+      return
+    }
+    addSuggestionList(filteredList)
+  });
+</script>
+</html>

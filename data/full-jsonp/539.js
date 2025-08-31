@@ -1,0 +1,1 @@
+$$zipcodejp([{"code":"27128","old_zip_code":"539  ","zip_code":"5390000","prefecture_kana":"ｵｵｻｶﾌ","city_kana":"ｵｵｻｶｼﾁｭｳｵｳｸ","town_kana":"ｲｶﾆｹｲｻｲｶﾞﾅｲﾊﾞｱｲ","prefecture":"大阪府","city":"大阪市中央区","town":"以下に掲載がない場合","has_multiple_zip_codes":"0","needs_koaza":"0","has_chome":"0","shares_zip_code":"0","update_status":"0","change_reason":"0"}]);
