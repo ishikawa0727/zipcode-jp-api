@@ -9,6 +9,9 @@ on:
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./script
     
     steps:
       - name: Checkout repository
@@ -19,17 +22,14 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: script/package-lock.json
           
       - name: Install dependencies
-        run: |
-          cd script
-          npm ci
+        run: npm ci
           
       - name: Run data update
         id: update
-        run: |
-          cd script
-          npm run exec
+        run: npm run exec
         
       - name: Check if data was updated
         id: check
