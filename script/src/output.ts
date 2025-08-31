@@ -22,6 +22,8 @@ const SPECIAL_TOWN_VALUES = {
 
 /**
  * データをファイルに保存する
+ * @param indexedZipCodeCsvLines 郵便番号でインデックス化されたCSVデータ
+ * @returns Promise<void> 保存処理の完了
  */
 export const saveNewFiles = async (indexedZipCodeCsvLines: {[zipCode: string]: string[][]}) => {
   try {
@@ -49,6 +51,7 @@ export const saveNewFiles = async (indexedZipCodeCsvLines: {[zipCode: string]: s
 
 /**
  * 古いファイルのあるディレクトリを削除する
+ * @returns Promise<void> 削除処理の完了
  */
 export const removeOldDirectories = async () => {
   try {
@@ -66,6 +69,7 @@ export const removeOldDirectories = async () => {
 
 /**
  * 新しいファイルを保存するためのディレクトリを作成する
+ * @returns Promise<void> 作成処理の完了
  */
 export const makeNewDirectories = async () => {
   try {
@@ -79,7 +83,6 @@ export const makeNewDirectories = async () => {
       ERROR_CODE.ZIP_CODE_PROCESSING.DIRECTORY_MAKING_FAILED
     )
   }
-  
 }
 
 /**
@@ -87,18 +90,22 @@ export const makeNewDirectories = async () => {
  * 郵便番号と都道府県、市区町村、町域を抜き出す
  * 町域が「以下に掲載がない場合」の時は空配列にする
  * 町域の「（...）」の部分を削除する
+ * @param zipCodeData 郵便番号データ
+ * @return [striing, string, string, string] 必要最小限の郵便番号データ
  */
-const createMinimizedCsvRow = (data: ZipCodeData) => {
+const createMinimizedCsvRow = (zipCodeData: ZipCodeData) => {
   return [
-    data.zip_code,
-    data.prefecture,
-    data.city,
-    data.town === SPECIAL_TOWN_VALUES.NO_DETAILS ? '' : data.town.split(REGEX_PATTERNS.OPEN_PARENTHESIS)[0]
+    zipCodeData.zip_code,
+    zipCodeData.prefecture,
+    zipCodeData.city,
+    zipCodeData.town === SPECIAL_TOWN_VALUES.NO_DETAILS ? '' : zipCodeData.town.split(REGEX_PATTERNS.OPEN_PARENTHESIS)[0]
   ]
 }
 
 /**
  * 配列をzipCodeDataの形式に変換する
+ * @param csvLines CSVデータ
+ * @returns ZipCodeData[] オブジェクト形式の配列
  */
 const csvLinesToZipCodeDataList = (csvLines: string[][]) => {
   return csvLines.map(csvLine => csvLine.reduce((zipCodeData, currentValue, currentIndex) => {

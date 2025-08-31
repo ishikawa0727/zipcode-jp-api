@@ -1,4 +1,4 @@
-import { FIELD_INDEXES, REGEX_PATTERNS } from './const'
+import { FIELD_INDEXES, REGEX_PATTERNS, ERROR_CODE } from './const'
 import { extractValuesByIndexes } from './utilities'
 import { ZipCodeProcessingError } from './error'
 
@@ -75,7 +75,7 @@ const createMultiLineTownDataList = (zipCodeCsvLines: string[][]): MultiLineTown
       } else {
         throw new ZipCodeProcessingError(
           `Zip code mismatch: expected ${currentZipCode}, but found ${currentMultiLineTownData?.zipCode}`,
-          'ZIP_CODE_MISMATCH'
+          ERROR_CODE.ZIP_CODE_PROCESSING.ZIP_CODE_MISMATCH
         )
       }
     }
