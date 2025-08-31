@@ -1,5 +1,7 @@
 import { FIELD_INDEXES } from './const'
 import { extractValuesByIndexes } from './utilities'
+import { ZipCodeProcessingError } from './error'
+
 type TownNameData = {
   zipCode: string
   townList: string[]
@@ -76,7 +78,10 @@ const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownName
         townNameData.townList.push(town)
         townNameData.townKanaList.push(townKana)
       } else {
-        throw new Error(`zipCode "${zipCode}" is not townNameData?.zipCode "${townNameData?.zipCode}".`)
+        throw new ZipCodeProcessingError(
+          `Zip code mismatch: expected ${zipCode}, but found ${townNameData?.zipCode}`,
+          'ZIP_CODE_MISMATCH'
+        )
       }
     }
     if(REGEX_PATTERNS.CLOSE_PARENTHESIS.test(town)) { // 閉じ括弧を含む場合
