@@ -7,9 +7,10 @@
   <title>zipcodejp</title>
 </head>
 <body>
+  <p>郵便番号を4桁以上入力すると入力候補が表示され、7桁入力すると各フォームが保管されます。</p>
   <dl>
     <dt>
-      郵便番号
+      <label>郵便番号</label>
     </dt>
     <dd class="zip_code_wrap">
       <input id="zipCode" type="number" list="zipCodeSuggest">
@@ -91,7 +92,7 @@
       const upperDigits = zipCode.slice(0, 3)
       if(!addressList || upperDigits !== previousUpperDigits) {
         try {
-          const response = await fetch(`https://ishikawa-yuya.github.io/zipcodejp/data/min-json/${upperDigits}.json`)
+          const response = await fetch(`./data/min-json/${upperDigits}.json`)
           const rows = await response.json()
           addressList = rows.map((values) => values.reduce((result, value, index) => {
             result[KEYS[index]] = value
