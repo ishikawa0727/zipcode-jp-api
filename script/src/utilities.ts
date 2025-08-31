@@ -33,8 +33,8 @@ export const encodeFromSJIS = (buffer: Buffer) => {
  */
 export const uniqueObjectArray = (array: string[][]): string[][] => {
   const map = new Map();
-  for(let i = 0; i < array.length; i += 1) {
-    map.set(JSON.stringify(array[i]), array[i])
+  for(let index = 0; index < array.length; index += 1) {
+    map.set(JSON.stringify(array[index]), array[index])
   }
   return [...map.values()]
 }

@@ -2,7 +2,7 @@ import { FIELD_INDEXES } from './const'
 import { extractValuesByIndexes } from './utilities'
 import { ZipCodeProcessingError } from './error'
 
-type TownNameData = {
+type MultiLineTownData = {
   zipCode: string
   townList: string[]
   townKanaList: string[]
@@ -26,23 +26,23 @@ type TownNameData = {
 export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
   const mutableCsvLines: string[][] = JSON.parse(JSON.stringify(zipCodeCsvLines))
   // 変換が必要な町域名のデータを抜き出す
-  const normalizedTownNameDataList = createNormalizedTownNameDataList(mutableCsvLines)
+  const multiLineTownDataList = createMultiLineTownDataList(mutableCsvLines)
   // zipCodeで索引できるように変換
-  const zipCodeToTownNameDataMap = normalizedTownNameDataList.reduce((acc, townNameData) => {
-    acc[townNameData.zipCode] = townNameData
-    return acc
-  }, {} as {[zipCode: string]: TownNameData});
+  const zipCodeToMultiLineTownDataMap = multiLineTownDataList.reduce((zipCodeToMultiLineTownData, currentMultiLineTownData) => {
+    zipCodeToMultiLineTownData[currentMultiLineTownData.zipCode] = currentMultiLineTownData
+    return zipCodeToMultiLineTownData
+  }, {} as {[zipCode: string]: MultiLineTownData});
 
   // 各CSVの行に対して、町域名の補正データがある場合は、町域名を差し替える
   for(let lineIndex = 0; lineIndex < mutableCsvLines.length; lineIndex += 1) {
     const csvLine = mutableCsvLines[lineIndex]
     const zipCode = csvLine[FIELD_INDEXES.ZIP_CODE]
-    const normalizedTownNameData = zipCodeToTownNameDataMap[zipCode]
-    if(!normalizedTownNameData?.townList.includes(csvLine[FIELD_INDEXES.TOWN])) {
+    const multiLineTownData = zipCodeToMultiLineTownDataMap[zipCode]
+    if(!multiLineTownData?.townList.includes(csvLine[FIELD_INDEXES.TOWN])) {
       continue
     }
-    csvLine[FIELD_INDEXES.TOWN] = normalizedTownNameData.townList.join('')
-    csvLine[FIELD_INDEXES.TOWN_KANA] = normalizedTownNameData.townKanaList.join('')
+    csvLine[FIELD_INDEXES.TOWN] = multiLineTownData.townList.join('')
+    csvLine[FIELD_INDEXES.TOWN_KANA] = multiLineTownData.townKanaList.join('')
   }
   return mutableCsvLines
 }
@@ -51,14 +51,14 @@ export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
  * 町域名が複数行に分割されているデータを補正し、町域名データのリストを返す
  * ※補正が必要なデータのみを返す
  */
-const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownNameData[] => {
+const createMultiLineTownDataList = (zipCodeCsvLines: string[][]): MultiLineTownData[] => {
   const REGEX_PATTERNS = {
     OPEN_PARENTHESIS: /（/,
     CLOSE_PARENTHESIS: /）/
   } as const
 
 
-  const normalizedTownNameDataList: TownNameData[] = []
+  const multiLineTownDataList: MultiLineTownData[] = []
   let isProcessingMultiLineTown = false
   
   for(let lineIndex = 0; lineIndex < zipCodeCsvLines.length; lineIndex += 1) {
@@ -66,20 +66,20 @@ const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownName
     const [currentZipCode, currentTown, currentTownKana] = extractValuesByIndexes(zipCodeCsvLines[lineIndex], [FIELD_INDEXES.ZIP_CODE, FIELD_INDEXES.TOWN, FIELD_INDEXES.TOWN_KANA])
     if(REGEX_PATTERNS.OPEN_PARENTHESIS.test(currentTown) && !REGEX_PATTERNS.CLOSE_PARENTHESIS.test(currentTown)) { // 開き括弧のみを含む場合
       isProcessingMultiLineTown = true
-      normalizedTownNameDataList.push({
+      multiLineTownDataList.push({
         zipCode: currentZipCode,
         townList: [],
         townKanaList: [],
       })
     }
     if(isProcessingMultiLineTown) {
-      const currentTownNameData = normalizedTownNameDataList.at(-1)
-      if(currentTownNameData?.zipCode === currentZipCode) {
-        currentTownNameData.townList.push(currentTown)
-        currentTownNameData.townKanaList.push(currentTownKana)
+      const currentMultiLineTownData = multiLineTownDataList.at(-1)
+      if(currentMultiLineTownData?.zipCode === currentZipCode) {
+        currentMultiLineTownData.townList.push(currentTown)
+        currentMultiLineTownData.townKanaList.push(currentTownKana)
       } else {
         throw new ZipCodeProcessingError(
-          `Zip code mismatch: expected ${currentZipCode}, but found ${currentTownNameData?.zipCode}`,
+          `Zip code mismatch: expected ${currentZipCode}, but found ${currentMultiLineTownData?.zipCode}`,
           'ZIP_CODE_MISMATCH'
         )
       }
@@ -88,5 +88,5 @@ const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownName
       isProcessingMultiLineTown = false
     }
   }
-  return normalizedTownNameDataList
+  return multiLineTownDataList
 }
