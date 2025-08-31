@@ -24,27 +24,27 @@ type TownNameData = {
  * n+3行目の町域名：萩荘（赤猪子、芦ノ口、甘蕨、老流、大沢、上宇津野、上本郷、上要害、化粧坂、三月田、下宇津野、下本郷、外山、堂の沢、栃倉、栃倉南、長倉、中沢、八森、馬場、広面、平場、古釜場、曲淵、松原、南沢、谷起、焼切、八瀬、岩手県,一関市,八幡、山ノ沢）
  */
 export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
-  const copiedCsvLines: string[][] = JSON.parse(JSON.stringify(zipCodeCsvLines))
+  const mutableCsvLines: string[][] = JSON.parse(JSON.stringify(zipCodeCsvLines))
   // 変換が必要な町域名のデータを抜き出す
-  const normalizedTownNameDataList = createNormalizedTownNameDataList(copiedCsvLines)
+  const normalizedTownNameDataList = createNormalizedTownNameDataList(mutableCsvLines)
   // zipCodeで索引できるように変換
-  const normalizedTownNameDataMap = normalizedTownNameDataList.reduce((acc, townNameData) => {
+  const zipCodeToTownNameDataMap = normalizedTownNameDataList.reduce((acc, townNameData) => {
     acc[townNameData.zipCode] = townNameData
     return acc
   }, {} as {[zipCode: string]: TownNameData});
 
   // 各CSVの行に対して、町域名の補正データがある場合は、町域名を差し替える
-  for(let i = 0; i < copiedCsvLines.length; i += 1) {
-    const csvLine = copiedCsvLines[i]
+  for(let lineIndex = 0; lineIndex < mutableCsvLines.length; lineIndex += 1) {
+    const csvLine = mutableCsvLines[lineIndex]
     const zipCode = csvLine[FIELD_INDEXES.ZIP_CODE]
-    const normalizedTownNameData = normalizedTownNameDataMap[zipCode]
+    const normalizedTownNameData = zipCodeToTownNameDataMap[zipCode]
     if(!normalizedTownNameData?.townList.includes(csvLine[FIELD_INDEXES.TOWN])) {
       continue
     }
     csvLine[FIELD_INDEXES.TOWN] = normalizedTownNameData.townList.join('')
     csvLine[FIELD_INDEXES.TOWN_KANA] = normalizedTownNameData.townKanaList.join('')
   }
-  return copiedCsvLines
+  return mutableCsvLines
 }
 
 /**
@@ -59,33 +59,33 @@ const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownName
 
 
   const normalizedTownNameDataList: TownNameData[] = []
-  let isOpenParenthesis = false
+  let isProcessingMultiLineTown = false
   
-  for(let i = 0; i < zipCodeCsvLines.length; i += 1) {
+  for(let lineIndex = 0; lineIndex < zipCodeCsvLines.length; lineIndex += 1) {
     // CSVの各行から必要なセルデータを抜き出す
-    const [zipCode, town, townKana] = extractValuesByIndexes(zipCodeCsvLines[i], [FIELD_INDEXES.ZIP_CODE, FIELD_INDEXES.TOWN, FIELD_INDEXES.TOWN_KANA])
-    if(REGEX_PATTERNS.OPEN_PARENTHESIS.test(town) && !REGEX_PATTERNS.CLOSE_PARENTHESIS.test(town)) { // 開き括弧のみを含む場合
-      isOpenParenthesis = true
+    const [currentZipCode, currentTown, currentTownKana] = extractValuesByIndexes(zipCodeCsvLines[lineIndex], [FIELD_INDEXES.ZIP_CODE, FIELD_INDEXES.TOWN, FIELD_INDEXES.TOWN_KANA])
+    if(REGEX_PATTERNS.OPEN_PARENTHESIS.test(currentTown) && !REGEX_PATTERNS.CLOSE_PARENTHESIS.test(currentTown)) { // 開き括弧のみを含む場合
+      isProcessingMultiLineTown = true
       normalizedTownNameDataList.push({
-        zipCode,
+        zipCode: currentZipCode,
         townList: [],
         townKanaList: [],
       })
     }
-    if(isOpenParenthesis) {
-      const townNameData = normalizedTownNameDataList.at(-1)
-      if(townNameData?.zipCode === zipCode) {
-        townNameData.townList.push(town)
-        townNameData.townKanaList.push(townKana)
+    if(isProcessingMultiLineTown) {
+      const currentTownNameData = normalizedTownNameDataList.at(-1)
+      if(currentTownNameData?.zipCode === currentZipCode) {
+        currentTownNameData.townList.push(currentTown)
+        currentTownNameData.townKanaList.push(currentTownKana)
       } else {
         throw new ZipCodeProcessingError(
-          `Zip code mismatch: expected ${zipCode}, but found ${townNameData?.zipCode}`,
+          `Zip code mismatch: expected ${currentZipCode}, but found ${currentTownNameData?.zipCode}`,
           'ZIP_CODE_MISMATCH'
         )
       }
     }
-    if(REGEX_PATTERNS.CLOSE_PARENTHESIS.test(town)) { // 閉じ括弧を含む場合
-      isOpenParenthesis = false
+    if(REGEX_PATTERNS.CLOSE_PARENTHESIS.test(currentTown)) { // 閉じ括弧を含む場合
+      isProcessingMultiLineTown = false
     }
   }
   return normalizedTownNameDataList
