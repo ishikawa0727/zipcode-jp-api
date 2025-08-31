@@ -16,7 +16,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+        with:
+          persist-credentials: true   # push で認証情報を利用
+          fetch-depth: 0             # 完全な履歴を取得してブランチ追跡
+          
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
