@@ -6,7 +6,7 @@ import encodingJapanese from 'encoding-japanese'
 import { parse as csvParse } from 'csv-parse/sync';
 import { stringify as csvStringify } from 'csv-stringify/sync';
 
-const KEYS = [
+const CSV_HEADER_FIELDS = [
   // [各項目の詳細]{@link https://www.post.japanpost.jp/zipcode/dl/readme.html}
   'code', // 1.全国地方公共団体コード（JIS X0401、X0402）………　半角数字
   'old_zip_code', //2.（旧）郵便番号（5桁）………………………………………　半角数字
@@ -25,7 +25,7 @@ const KEYS = [
   'change_reason', // 14.変更理由　（「0」は変更なし、「1」市政・区政・町政・分区・政令指定都市施行、「2」住居表示の実施、「3」区画整理、「4」郵便区調整等、「5」訂正、「6」廃止（廃止データのみ使用））
 ] as const
 
-type ZipCodeData = Record<typeof KEYS[number], string>
+type ZipCodeData = Record<typeof CSV_HEADER_FIELDS[number], string>
 
 type FixTownCondition = {
   zipCode: string
@@ -39,7 +39,7 @@ class ZipCodeJp {
    */
   static rowsToZipCodeDataList (rows: string[][]) {
     return rows.map(values => values.reduce((zipCodeData, value, index) => {
-      KEYS[index] && (zipCodeData[KEYS[index]] = value)
+      CSV_HEADER_FIELDS[index] && (zipCodeData[CSV_HEADER_FIELDS[index]] = value)
       return zipCodeData
     }, {} as ZipCodeData))
   }
@@ -137,9 +137,9 @@ class ZipCodeJp {
   static fixTown (rows: string[][]) {
     const copiedRows: string[][] = JSON.parse(JSON.stringify(rows))
     const conditionsIndexedByZipCode = this.makeFixTownConditionsIndexedByZipCode(copiedRows)
-    const zipCodeIndex = KEYS.indexOf('zip_code')
-    const townIndex = KEYS.indexOf('town')
-    const townKanaIndex = KEYS.indexOf('town_kana')
+    const zipCodeIndex = CSV_HEADER_FIELDS.indexOf('zip_code')
+    const townIndex = CSV_HEADER_FIELDS.indexOf('town')
+    const townKanaIndex = CSV_HEADER_FIELDS.indexOf('town_kana')
     for(let i = 0; i < copiedRows.length; i += 1) {
       const row = copiedRows[i]
       const result = this.getFixedTown(row[zipCodeIndex], row[townIndex], conditionsIndexedByZipCode)
@@ -156,7 +156,7 @@ class ZipCodeJp {
    */
   static segmentalizeByZipCodeUpperDigits (rows: string[][]) :Record<string, string[][]> {
     return rows.reduce((result, row) => {
-        const upperDigits = row[KEYS.indexOf('zip_code')].slice(0, 3)
+        const upperDigits = row[CSV_HEADER_FIELDS.indexOf('zip_code')].slice(0, 3)
         result[upperDigits] = result[upperDigits] || []
         result[upperDigits].push(row)
         return result
