@@ -2,7 +2,7 @@
 import decompress from 'decompress'
 import { parse as csvParse } from 'csv-parse/sync';
 import { httpRequest, encodeFromSJIS, uniqueObjectRows } from './src/utilities'
-import { fixTown } from './src/fixTown'
+import { normalizeTownNames } from './src/normalizeTownNames'
 import { segmentalizeByZipCodeUpperDigits } from './src/segmentalizeByZipCodeUpperDigits'
 import { save } from './src/save';
 
@@ -11,7 +11,7 @@ import { save } from './src/save';
   const decompressed = await decompress(response)
   const encoded = encodeFromSJIS(decompressed[0].data)
   const rows: string[][] = csvParse(encoded)
-  const fixedRows = fixTown(rows)
+  const fixedRows = normalizeTownNames(rows)
   const uniqRows = uniqueObjectRows(fixedRows)
   const segmentalized = segmentalizeByZipCodeUpperDigits(uniqRows)
   save(segmentalized)
