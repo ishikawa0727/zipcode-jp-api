@@ -1,11 +1,10 @@
-import https from 'https'
 import fs from 'fs-extra'
 import path from 'path'
 import decompress from 'decompress'
-import encodingJapanese from 'encoding-japanese'
 import { parse as csvParse } from 'csv-parse/sync';
 import { stringify as csvStringify } from 'csv-stringify/sync';
 import { CSV_HEADER_FIELDS } from './src/const'
+import { httpRequest, encodeFromSJIS, uniqueObjectRows } from './src/utilities'
 
 type ZipCodeData = Record<typeof CSV_HEADER_FIELDS[number], string>
 
@@ -166,55 +165,15 @@ class ZipCodeJp {
 }
 
 
-class Utilities {
-  /**
-   * 指定されたURLから取得したデータをBufferとして返す
-   */
-  static httpRequest (url: string): Promise<Buffer> {
-    return new Promise<Buffer>((resolve, reject) => {
-      https.request(url, (res) => {
-        const data: Buffer[] = [];
-        res.on('data', (chunk: Buffer) => {
-          data.push(chunk)
-        }).on('close', () =>{
-          resolve(Buffer.concat(data))
-        }).on('error', reject)
-      }).end()
-    })
-  }
-
-  /**
-   * 文字コードをShift-JISからunicodeに変換する
-   */
-  static encodeFromSJIS (buffer: Buffer) {
-    return encodingJapanese.convert(buffer, {
-      from: 'SJIS',
-      to: 'UNICODE',
-      type: 'string',
-    });
-  }
-
-  /**
-   * オブジェクトまたは配列を要素に持つ配列からデータの重複を排除する
-   */
-  static uniqueObjectRows(rows: string[][]): string[][] {
-    const map = new Map();
-    for(let i = 0; i < rows.length; i += 1) {
-      map.set(JSON.stringify(rows[i]), rows[i])
-    }
-    return [...map.values()]
-  }
-}
-
 
 
 async function main() {
-  const response = await Utilities.httpRequest('https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip')
+  const response = await httpRequest('https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip')
   const decompressed = await decompress(response)
-  const encoded = Utilities.encodeFromSJIS(decompressed[0].data)
+  const encoded = encodeFromSJIS(decompressed[0].data)
   const rows: string[][] = csvParse(encoded)
   const fixedRows = ZipCodeJp.fixTown(rows)
-  const uniqRows = Utilities.uniqueObjectRows(fixedRows)
+  const uniqRows = uniqueObjectRows(fixedRows)
   const segmentalized = ZipCodeJp.segmentalizeByZipCodeUpperDigits(uniqRows)
   ZipCodeJp.save(segmentalized)
 }
