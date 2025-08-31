@@ -50,24 +50,29 @@ export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
  * ※補正が必要なデータのみを返す
  */
 const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownNameData[] => {
+  const REGEX_PATTERNS = {
+    OPEN_PARENTHESIS: /（/,
+    CLOSE_PARENTHESIS: /）/
+  } as const
+
   // 各フィールドのカラムインデックスを取得
   const [zipCodeIndex, townIndex, townKanaIndex] = extractIndexesByValues([...CSV_HEADER_FIELDS], ['zip_code', 'town', 'town_kana'])
 
   const normalizedTownNameDataList: TownNameData[] = []
-  let isStartParenthesis = false
+  let isOpenParenthesis = false
   
   for(let i = 0; i < zipCodeCsvLines.length; i += 1) {
     // CSVの各行から必要なセルデータを抜き出す
     const [zipCode, town, townKana] = extractValuesByIndexes(zipCodeCsvLines[i], [zipCodeIndex, townIndex, townKanaIndex])
-    if(/（/.test(town) && !/）/.test(town)) { // 開き括弧のみを含む場合
-      isStartParenthesis = true
+    if(REGEX_PATTERNS.OPEN_PARENTHESIS.test(town) && !REGEX_PATTERNS.CLOSE_PARENTHESIS.test(town)) { // 開き括弧のみを含む場合
+      isOpenParenthesis = true
       normalizedTownNameDataList.push({
         zipCode,
         townList: [],
         townKanaList: [],
       })
     }
-    if(isStartParenthesis) {
+    if(isOpenParenthesis) {
       const townNameData = normalizedTownNameDataList.at(-1)
       if(townNameData?.zipCode === zipCode) {
         townNameData.townList.push(town)
@@ -76,8 +81,8 @@ const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownName
         throw new Error(`zipCode "${zipCode}" is not townNameData?.zipCode "${townNameData?.zipCode}".`)
       }
     }
-    if(/）/.test(town)) { // 閉じ括弧を含む場合
-      isStartParenthesis = false
+    if(REGEX_PATTERNS.CLOSE_PARENTHESIS.test(town)) { // 閉じ括弧を含む場合
+      isOpenParenthesis = false
     }
   }
   return normalizedTownNameDataList
