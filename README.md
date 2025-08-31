@@ -18,9 +18,9 @@
 | full-csv   | 旧郵便番号や仮名表記を等を含むCSVデータ                         | 
 | full-json  | 旧郵便番号や仮名表記を等を含むオブジェクト形式のJSONデータ      | 
 | full-jsonp | 旧郵便番号や仮名表記を等を含むオブジェクト形式のJSONPデータ     | 
-| mini-csv   | 郵便番号、都道府県、市区町村、町域名のみのCSVデータ             | 
-| mini-json  | 郵便番号、都道府県、市区町村、町域名のみの配列形式のJSONデータ  | 
-| mini-jsonp | 郵便番号、都道府県、市区町村、町域名のみの配列形式のJSONPデータ | 
+| min-csv   | 郵便番号、都道府県、市区町村、町域名のみのCSVデータ             | 
+| min-json  | 郵便番号、都道府県、市区町村、町域名のみの配列形式のJSONデータ  | 
+| min-jsonp | 郵便番号、都道府県、市区町村、町域名のみの配列形式のJSONPデータ | 
 
 以下は、Webアプリケーションでの使用例です。
 
@@ -56,13 +56,14 @@ zipcode-jp-api/
 │   └── min-jsonp/          # 最小版JSONPファイル（主要フィールドのみ）
 ├── index.html              # Webアプリケーション（デモ用）
 ├── script/                 # データ処理スクリプト
+│   ├── bin                 # 実行ファイル
+│   │   └── cli.ts          # メイン処理スクリプト
 │   ├── src/                # ソースコード
 │   │   ├── const.ts        # CSVフィールド定義と定数
 │   │   ├── normalizeTownNames.ts  # 町名の正規化処理
 │   │   ├── save.ts         # データの保存処理
 │   │   ├── segmentalizeByZipCodeUpperDigits.ts  # 郵便番号によるセグメント化
 │   │   └── utilities.ts    # HTTP通信・エンコーディング変換等のユーティリティ
-│   ├── index.ts            # メイン処理スクリプト
 │   └── package.json        # 依存関係とスクリプト定義
 └── README.md               # このファイル
 ```
@@ -78,7 +79,7 @@ zipcode-jp-api/
 1. リポジトリをクローン
 ```bash
 git clone https://github.com/ishikawa0727/zipcode-jp-api.git
-cd zipcode-ip-api
+cd zipcode-jp-api
 ```
 
 2. 依存関係をインストール
