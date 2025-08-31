@@ -25,15 +25,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: script/package-lock.json
       - name: Install dependencies
-        run: |
-          cd script
-          npm ci
-          
+        run: npm ci
       - name: Build project
-        run: |
-          cd script
-          npm run build
-          
+        run: npm run build
       - name: Test workflow
         run: |
           echo "✅ Test workflow completed successfully!"
