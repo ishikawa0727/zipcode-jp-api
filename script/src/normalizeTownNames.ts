@@ -1,5 +1,5 @@
-import { CSV_HEADER_FIELDS } from './const'
-import { extractIndexesByValues, extractValuesByIndexes } from './utilities'
+import { FIELD_INDEXES } from './const'
+import { extractValuesByIndexes } from './utilities'
 type TownNameData = {
   zipCode: string
   townList: string[]
@@ -31,16 +31,16 @@ export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
     return acc
   }, {} as {[zipCode: string]: TownNameData});
 
-  const [zipCodeIndex, townIndex, townKanaIndex] = extractIndexesByValues([...CSV_HEADER_FIELDS], ['zip_code', 'town', 'town_kana'])
   // 各CSVの行に対して、町域名の補正データがある場合は、町域名を差し替える
   for(let i = 0; i < copiedCsvLines.length; i += 1) {
     const csvLine = copiedCsvLines[i]
-    const zipCode = csvLine[zipCodeIndex]
+    const zipCode = csvLine[FIELD_INDEXES.ZIP_CODE]
     const normalizedTownNameData = normalizedTownNameDataMap[zipCode]
-    if(normalizedTownNameData?.townList.includes(csvLine[townIndex])) {
-      csvLine[townIndex] = normalizedTownNameData.townList.join('')
-      csvLine[townKanaIndex] = normalizedTownNameData.townKanaList.join('')
+    if(!normalizedTownNameData?.townList.includes(csvLine[FIELD_INDEXES.TOWN])) {
+      continue
     }
+    csvLine[FIELD_INDEXES.TOWN] = normalizedTownNameData.townList.join('')
+    csvLine[FIELD_INDEXES.TOWN_KANA] = normalizedTownNameData.townKanaList.join('')
   }
   return copiedCsvLines
 }
@@ -55,15 +55,13 @@ const createNormalizedTownNameDataList = (zipCodeCsvLines: string[][]): TownName
     CLOSE_PARENTHESIS: /）/
   } as const
 
-  // 各フィールドのカラムインデックスを取得
-  const [zipCodeIndex, townIndex, townKanaIndex] = extractIndexesByValues([...CSV_HEADER_FIELDS], ['zip_code', 'town', 'town_kana'])
 
   const normalizedTownNameDataList: TownNameData[] = []
   let isOpenParenthesis = false
   
   for(let i = 0; i < zipCodeCsvLines.length; i += 1) {
     // CSVの各行から必要なセルデータを抜き出す
-    const [zipCode, town, townKana] = extractValuesByIndexes(zipCodeCsvLines[i], [zipCodeIndex, townIndex, townKanaIndex])
+    const [zipCode, town, townKana] = extractValuesByIndexes(zipCodeCsvLines[i], [FIELD_INDEXES.ZIP_CODE, FIELD_INDEXES.TOWN, FIELD_INDEXES.TOWN_KANA])
     if(REGEX_PATTERNS.OPEN_PARENTHESIS.test(town) && !REGEX_PATTERNS.CLOSE_PARENTHESIS.test(town)) { // 開き括弧のみを含む場合
       isOpenParenthesis = true
       normalizedTownNameDataList.push({

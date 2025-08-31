@@ -53,18 +53,3 @@ export const extractValuesByIndexes = <T>(array: T[], indexes: number[]): T[] =>
   })
   return values;
 }
-
-/**
- * 配列から指定した値のindexを抜き取る
- */
-export const extractIndexesByValues = <T>(array: T[], values: T[]): number[] => {
-  const indexes: number[] = []
-  values.forEach((value) => {
-    if(array.indexOf(value)) {
-      indexes.push(array.indexOf(value))
-    } else {
-      throw new Error(`The Given value "${value}" is not exit in the provided array.`)
-    }
-  })
-  return indexes;
-}

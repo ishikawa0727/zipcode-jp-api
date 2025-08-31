@@ -19,3 +19,10 @@ export const CSV_HEADER_FIELDS = [
   'update_status', // 13.更新の表示（注6）（「0」は変更なし、「1」は変更あり、「2」廃止（廃止データのみ使用））
   'change_reason', // 14.変更理由　（「0」は変更なし、「1」市政・区政・町政・分区・政令指定都市施行、「2」住居表示の実施、「3」区画整理、「4」郵便区調整等、「5」訂正、「6」廃止（廃止データのみ使用））
 ] as const
+
+export const FIELD_INDEXES = {
+  ZIP_CODE: CSV_HEADER_FIELDS.indexOf('zip_code'),
+  TOWN: CSV_HEADER_FIELDS.indexOf('town'),
+  TOWN_KANA: CSV_HEADER_FIELDS.indexOf('town_kana')
+} as const
+
