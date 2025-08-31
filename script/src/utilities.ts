@@ -31,10 +31,10 @@ export const encodeFromSJIS = (buffer: Buffer) => {
 /**
  * オブジェクトまたは配列を要素に持つ配列からデータの重複を排除する
  */
-export const uniqueObjectRows = (rows: string[][]): string[][] => {
+export const uniqueObjectArray = (array: string[][]): string[][] => {
   const map = new Map();
-  for(let i = 0; i < rows.length; i += 1) {
-    map.set(JSON.stringify(rows[i]), rows[i])
+  for(let i = 0; i < array.length; i += 1) {
+    map.set(JSON.stringify(array[i]), array[i])
   }
   return [...map.values()]
 }

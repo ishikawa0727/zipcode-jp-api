@@ -36,10 +36,10 @@ export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
   for(let i = 0; i < copiedCsvLines.length; i += 1) {
     const csvLine = copiedCsvLines[i]
     const zipCode = csvLine[zipCodeIndex]
-    const townNameData = normalizedTownNameDataMap[zipCode]
-    if(townNameData?.townList.includes(csvLine[townIndex])) {
-      csvLine[townIndex] = townNameData.townList.join('')
-      csvLine[townKanaIndex] = townNameData.townKanaList.join('')
+    const normalizedTownNameData = normalizedTownNameDataMap[zipCode]
+    if(normalizedTownNameData?.townList.includes(csvLine[townIndex])) {
+      csvLine[townIndex] = normalizedTownNameData.townList.join('')
+      csvLine[townKanaIndex] = normalizedTownNameData.townKanaList.join('')
     }
   }
   return copiedCsvLines

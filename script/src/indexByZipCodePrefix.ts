@@ -1,6 +1,4 @@
-import { CSV_HEADER_FIELDS } from "./const"
-
-export type ZipCodeData = Record<typeof CSV_HEADER_FIELDS[number], string>
+import { CSV_HEADER_FIELDS } from './const'
 
 /**
  * 郵便番号CSVデータを、郵便番号の上3桁をキーとしたオブジェクトに変換する
