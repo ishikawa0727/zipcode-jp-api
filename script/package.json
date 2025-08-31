@@ -2,7 +2,7 @@
   "name": "zipcode-jp-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "bin/cli.ts",
   "scripts": {
     "build": "tsc",
     "exec": "npm run build && node dist/bin/cli"
