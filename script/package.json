@@ -23,7 +23,6 @@
     "csv-stringify": "^6.2.4",
     "decompress": "^4.2.1",
     "encoding-japanese": "^2.0.0",
-    "fs-extra": "^11.1.0",
-    "zlib": "^1.0.5"
+    "fs-extra": "^11.1.0"
   }
 }
