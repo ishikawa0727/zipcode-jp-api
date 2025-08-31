@@ -5,7 +5,6 @@ import { httpRequest, encodeFromSJIS, uniqueObjectArray } from '../src/utilities
 import { normalizeTownNames } from '../src/normalizeTownNames'
 import { indexByZipCodePrefix } from '../src/indexByZipCodePrefix'
 import { saveNewFiles, removeOldFiles } from '../src/output';
-import { ZipCodeProcessingError } from '../src/error'
 
 (async() => {
   try {
