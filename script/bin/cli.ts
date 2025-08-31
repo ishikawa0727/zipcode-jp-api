@@ -4,7 +4,8 @@ import { parse as csvParse } from 'csv-parse/sync';
 import { httpRequest, encodeFromSJIS, uniqueObjectArray } from '../src/utilities'
 import { normalizeTownNames } from '../src/normalizeTownNames'
 import { indexByZipCodePrefix } from '../src/indexByZipCodePrefix'
-import { saveNewFiles, removeOldFiles } from '../src/output';
+import { saveNewFiles, removeOldDirectories, makeNewDirectories } from '../src/output';
+import { ZipCodeProcessingError } from '../src/error'
 
 (async() => {
   try {
@@ -15,10 +16,16 @@ import { saveNewFiles, removeOldFiles } from '../src/output';
     const normalizedZipCodeCsvLines = normalizeTownNames(zipCodeCsvLines) // データ補正
     const uniqueZipCodeCsvLines = uniqueObjectArray(normalizedZipCodeCsvLines) // 重複削除
     const indexedZipCodeCsvLines = indexByZipCodePrefix(uniqueZipCodeCsvLines) // 郵便番号でindex化
-    removeOldFiles() // 古いファイルを削除
-    saveNewFiles(indexedZipCodeCsvLines) // データをファイルに保存
+    await removeOldDirectories() // 古いファイルを削除
+    await makeNewDirectories() // 新しいファイルを保存するためのディレクトリを作成
+    await saveNewFiles(indexedZipCodeCsvLines) // データをファイルに保存
   } catch(error) {
-    console.error('Failed to process zip code data:', error)
+    if (error instanceof ZipCodeProcessingError) {
+      console.error('Zip code processing error:', error.message)
+      console.error('Error code:', error.code)
+    } else {
+      console.error('Unexpected error:', error)
+    }
     process.exit(1)
   }
 })()

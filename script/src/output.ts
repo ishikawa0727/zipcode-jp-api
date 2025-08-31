@@ -3,6 +3,7 @@ import path from 'path'
 import { stringify as csvStringify } from 'csv-stringify/sync';
 import { CSV_HEADER_FIELDS, REGEX_PATTERNS } from './const'
 import { ZipCodeProcessingError } from './error';
+import { isNull } from 'util';
 
 type ZipCodeData = Record<typeof CSV_HEADER_FIELDS[number], string>
 
@@ -23,42 +24,67 @@ const SPECIAL_TOWN_VALUES = {
 /**
  * データをファイルに保存する
  */
-export const saveNewFiles = (indexedZipCodeCsvLines: {[zipCode: string]: string[][]}) => {
-  Object.entries(indexedZipCodeCsvLines).forEach(([key, csvLines]) => {
-    try {
-      const zipCodeDataList = csvLinesToZipCodeDataList(csvLines)
-      fs.writeFileSync(path.join(SAVE_DIRECTORY, DIR_NAME.FULL_JSON, `${key}.json`), JSON.stringify(zipCodeDataList))
-      fs.writeFileSync(path.join(SAVE_DIRECTORY, DIR_NAME.FULL_JSONP, `${key}.js`), `$$zipcodejp(${JSON.stringify(zipCodeDataList)});`)
-      fs.writeFileSync(path.join(SAVE_DIRECTORY, DIR_NAME.FULL_CSV, `${key}.csv`), csvStringify(csvLines))
-
-      const minimizedCsv = zipCodeDataList.map(createMinimizedCsvRow)
-      fs.writeFileSync(path.join(SAVE_DIRECTORY, DIR_NAME.MIN_JSON, `${key}.json`), JSON.stringify(minimizedCsv))
-      fs.writeFileSync(path.join(SAVE_DIRECTORY, DIR_NAME.MIN_JSONP, `${key}.js`), `$$zipcodejp(${JSON.stringify(minimizedCsv)});`)
-      fs.writeFileSync(path.join(SAVE_DIRECTORY, DIR_NAME.MIN_CSV, `${key}.csv`), csvStringify(minimizedCsv))
-    } catch(error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      throw new ZipCodeProcessingError(
-        `Failed to save output files: ${errorMessage}. Please reset data files with "git checkout $ROOT_DIR/data"`,
-        'FILE_SAVING_FAILED'
-      )
-    }
+export const saveNewFiles = (indexedZipCodeCsvLines: {[zipCode: string]: string[][]}) => new Promise((resolve, reject) => {
+  
+  const promises = Object.entries(indexedZipCodeCsvLines).flatMap(([key, csvLines]) => {
+    const zipCodeDataList = csvLinesToZipCodeDataList(csvLines)
+    const minimizedCsv = zipCodeDataList.map(createMinimizedCsvRow)
+    return [
+      fs.writeFile(path.join(SAVE_DIRECTORY, DIR_NAME.FULL_JSON, `${key}.json`), JSON.stringify(zipCodeDataList)),
+      fs.writeFile(path.join(SAVE_DIRECTORY, DIR_NAME.FULL_JSONP, `${key}.js`), `$$zipcodejp(${JSON.stringify(zipCodeDataList)});`),
+      fs.writeFile(path.join(SAVE_DIRECTORY, DIR_NAME.FULL_CSV, `${key}.csv`), csvStringify(csvLines)),
+      fs.writeFile(path.join(SAVE_DIRECTORY, DIR_NAME.MIN_JSON, `${key}.json`), JSON.stringify(minimizedCsv)),
+      fs.writeFile(path.join(SAVE_DIRECTORY, DIR_NAME.MIN_JSONP, `${key}.js`), `$$zipcodejp(${JSON.stringify(minimizedCsv)});`),
+      fs.writeFile(path.join(SAVE_DIRECTORY, DIR_NAME.MIN_CSV, `${key}.csv`), csvStringify(minimizedCsv)),
+    ]
   })
-}
-
-/**
- * 古いファイルを削除する
- */
-export const removeOldFiles = () => {
-  try {
-    DIR_NAMES.map(dir => fs.removeSync(path.join(SAVE_DIRECTORY, dir)))
-    DIR_NAMES.map(dir => fs.mkdirSync(path.join(SAVE_DIRECTORY, dir), {recursive: true}))
-  } catch(error) {
+  Promise.all(promises).then(() => {
+    resolve(null)
+  }).catch((error) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     throw new ZipCodeProcessingError(
+      `Failed to save output files: ${errorMessage}. Please reset data files with "git checkout $ROOT_DIR/data"`,
+      'FILE_SAVING_FAILED'
+    )
+  }) 
+})
+
+/**
+ * 古いファイルのあるディレクトリを削除する
+ */
+export const removeOldDirectories = async () => new Promise((resolve, reject) => {
+  Promise.all(
+    DIR_NAMES.map(dir => fs.remove(path.join(SAVE_DIRECTORY, dir)))
+  ).then(() => {
+    resolve(null)
+  }).catch((error) => {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const zipCodeProcessingError = new ZipCodeProcessingError(
       `Failed to remove output directory: ${errorMessage}. Please reset data files with "git checkout $ROOT_DIR/data"`,
       'DIRECTORY_REMOVING_FAILED'
     )
-  }
+    reject(zipCodeProcessingError)
+  })
+})
+
+/**
+ * 新しいファイルを保存するためのディレクトリを作成する
+ */
+export const makeNewDirectories = async () => {
+  return new Promise((resolve, reject) => {
+    Promise.all(
+      DIR_NAMES.map(dir => fs.mkdir(path.join(SAVE_DIRECTORY, dir)))
+    ).then(() => {
+      resolve(null)
+    }).catch((error) => {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const zipCodeProcessingError = new ZipCodeProcessingError(
+        `Failed to make output directory: ${errorMessage}. Please reset data files with "git checkout $ROOT_DIR/data"`,
+        'DIRECTORY_MAKING_FAILED'
+      )
+      reject(zipCodeProcessingError)
+    })
+  })
 }
 
 /**
