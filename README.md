@@ -1,4 +1,4 @@
-# 郵便番号IP API
+# zipcode-jp-api
 
 このプロジェクトは、日本郵政の郵便番号データを処理し、Webアプリケーションで利用可能な住所検索APIを構築します。
 
@@ -32,11 +32,29 @@
 
 また、出力形式はCSV、JSON、JSONPをサポートしています。
 
+## プロジェクト構造
 
-### Webアプリケーション
-- 郵便番号入力による住所検索
-- 入力候補の自動表示
-- 都道府県、市区町村、町名の自動入力
+```
+zipcode-jp-api/
+├── data/                    # 処理済みデータファイル
+│   ├── full-csv/           # 完全版CSVファイル（全フィールド）
+│   ├── full-json/          # 完全版JSONファイル（全フィールド）
+│   ├── full-jsonp/         # 完全版JSONPファイル（全フィールド）
+│   ├── min-csv/            # 最小版CSVファイル（主要フィールドのみ）
+│   ├── min-json/           # 最小版JSONファイル（主要フィールドのみ）
+│   └── min-jsonp/          # 最小版JSONPファイル（主要フィールドのみ）
+├── index.html              # Webアプリケーション（デモ用）
+├── script/                 # データ処理スクリプト
+│   ├── src/                # ソースコード
+│   │   ├── const.ts        # CSVフィールド定義と定数
+│   │   ├── normalizeTownNames.ts  # 町名の正規化処理
+│   │   ├── save.ts         # データの保存処理
+│   │   ├── segmentalizeByZipCodeUpperDigits.ts  # 郵便番号によるセグメント化
+│   │   └── utilities.ts    # HTTP通信・エンコーディング変換等のユーティリティ
+│   ├── index.ts            # メイン処理スクリプト
+│   └── package.json        # 依存関係とスクリプト定義
+└── README.md               # このファイル
+```
 
 ## セットアップ
 
