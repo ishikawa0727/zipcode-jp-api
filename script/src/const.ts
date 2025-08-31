@@ -26,3 +26,8 @@ export const FIELD_INDEXES = {
   TOWN_KANA: CSV_HEADER_FIELDS.indexOf('town_kana')
 } as const
 
+export const REGEX_PATTERNS = {
+  OPEN_PARENTHESIS: /（/,
+  CLOSE_PARENTHESIS: /）/
+} as const
+

@@ -1,4 +1,4 @@
-import { FIELD_INDEXES } from './const'
+import { FIELD_INDEXES, REGEX_PATTERNS } from './const'
 import { extractValuesByIndexes } from './utilities'
 import { ZipCodeProcessingError } from './error'
 
@@ -52,11 +52,6 @@ export const normalizeTownNames = (zipCodeCsvLines: string[][]) => {
  * ※補正が必要なデータのみを返す
  */
 const createMultiLineTownDataList = (zipCodeCsvLines: string[][]): MultiLineTownData[] => {
-  const REGEX_PATTERNS = {
-    OPEN_PARENTHESIS: /（/,
-    CLOSE_PARENTHESIS: /）/
-  } as const
-
 
   const multiLineTownDataList: MultiLineTownData[] = []
   let isProcessingMultiLineTown = false
