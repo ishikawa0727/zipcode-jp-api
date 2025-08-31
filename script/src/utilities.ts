@@ -48,7 +48,7 @@ export const extractValuesByIndexes = <T>(array: T[], indexes: number[]): T[] =>
     if(array[index]) {
       values.push(array[index])
     } else {
-      throw new Error(`The Given index "${index}" is not exit in the provided array.`)
+      throw new Error(`Index ${index} is out of bounds for array with length ${array.length}`)
     }
   })
   return values;
