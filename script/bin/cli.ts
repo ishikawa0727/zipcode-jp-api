@@ -4,7 +4,7 @@ import { parse as csvParse } from 'csv-parse/sync';
 import { httpRequest, encodeFromSJIS, uniqueObjectArray } from '../src/utilities'
 import { normalizeTownNames } from '../src/normalizeTownNames'
 import { indexByZipCodePrefix } from '../src/indexByZipCodePrefix'
-import { saveNewFiles, removeOldFiles } from '../src/save';
+import { saveNewFiles, removeOldFiles } from '../src/output';
 
 (async() => {
   const response = await httpRequest('https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip')

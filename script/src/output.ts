@@ -39,7 +39,7 @@ export const saveNewFiles = (indexedZipCodeCsvLines: {[zipCode: string]: string[
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       throw new ZipCodeProcessingError(
         `Failed to save output files: ${errorMessage}. Please reset data files with "git checkout $ROOT_DIR/data"`,
-        'FILE_SAVE_FAILED'
+        'FILE_SAVING_FAILED'
       )
     }
   })
@@ -56,7 +56,7 @@ export const removeOldFiles = () => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     throw new ZipCodeProcessingError(
       `Failed to remove output directory: ${errorMessage}. Please reset data files with "git checkout $ROOT_DIR/data"`,
-      'DIRECTORY_REMOVE_FAILED'
+      'DIRECTORY_REMOVING_FAILED'
     )
   }
 }
