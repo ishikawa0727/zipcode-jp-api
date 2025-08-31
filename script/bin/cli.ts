@@ -1,10 +1,10 @@
 
 import decompress from 'decompress'
 import { parse as csvParse } from 'csv-parse/sync';
-import { httpRequest, encodeFromSJIS, uniqueObjectArray } from './src/utilities'
-import { normalizeTownNames } from './src/normalizeTownNames'
-import { indexByZipCodePrefix } from './src/indexByZipCodePrefix'
-import { save } from './src/save';
+import { httpRequest, encodeFromSJIS, uniqueObjectArray } from '../src/utilities'
+import { normalizeTownNames } from '../src/normalizeTownNames'
+import { indexByZipCodePrefix } from '../src/indexByZipCodePrefix'
+import { save } from '../src/save';
 
 (async() => {
   const response = await httpRequest('https://www.post.japanpost.jp/zipcode/dl/kogaki/zip/ken_all.zip')

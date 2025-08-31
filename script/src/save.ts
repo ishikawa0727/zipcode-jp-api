@@ -5,7 +5,7 @@ import { CSV_HEADER_FIELDS } from './const'
 
 type ZipCodeData = Record<typeof CSV_HEADER_FIELDS[number], string>
 
-const SAVE_DIRECTORY = path.join(__dirname, '../../data/')
+const SAVE_DIRECTORY = path.join(__dirname, '../../../data/')
 
 /**
  * データをファイルに保存する

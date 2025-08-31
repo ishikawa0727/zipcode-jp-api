@@ -10,6 +10,6 @@ export const indexByZipCodePrefix = (zipCodeCsvLines: string[][]) : {[zipCodePre
       acc[zipCodePrefix] ??= []
       acc[zipCodePrefix].push(zipCodeCsvLine)
       return acc
-  },{})
+  },{} as { [zipCodePrefix: string]: string[][] })
 }
 
