@@ -29,9 +29,9 @@ export const encodeFromSJIS = (buffer: Buffer) => {
 }
 
 /**
- * オブジェクトまたは配列を要素に持つ配列からデータの重複を排除する
+ * 配列を要素に持つ配列からデータの重複を排除する
  */
-export const uniqueObjectArray = (array: string[][]): string[][] => {
+export const distinctNestedArrays = (array: string[][]): string[][] => {
   const map = new Map();
   for(let index = 0; index < array.length; index += 1) {
     map.set(JSON.stringify(array[index]), array[index])
