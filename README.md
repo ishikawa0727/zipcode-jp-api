@@ -47,25 +47,37 @@
 
 ```
 zipcode-jp-api/
-├── data/                    # 処理済みデータファイル
-│   ├── full-csv/           # 完全版CSVファイル（全フィールド）
-│   ├── full-json/          # 完全版JSONファイル（全フィールド）
-│   ├── full-jsonp/         # 完全版JSONPファイル（全フィールド）
-│   ├── min-csv/            # 最小版CSVファイル（主要フィールドのみ）
-│   ├── min-json/           # 最小版JSONファイル（主要フィールドのみ）
-│   └── min-jsonp/          # 最小版JSONPファイル（主要フィールドのみ）
-├── index.html              # Webアプリケーション（デモ用）
-├── script/                 # データ処理スクリプト
-│   ├── bin                 # 実行ファイル
-│   │   └── cli.ts          # メイン処理スクリプト
-│   ├── src/                # ソースコード
-│   │   ├── const.ts        # CSVフィールド定義と定数
-│   │   ├── normalizeTownNames.ts  # 町名の正規化処理
-│   │   ├── save.ts         # データの保存処理
-│   │   ├── segmentalizeByZipCodeUpperDigits.ts  # 郵便番号によるセグメント化
-│   │   └── utilities.ts    # HTTP通信・エンコーディング変換等のユーティリティ
-│   └── package.json        # 依存関係とスクリプト定義
-└── README.md               # このファイル
+│
+├── index.html # Webアプリケーション（デモ用）
+│
+├── data # 処理済みデータファイル
+│   ├── full-csv/ # 完全版CSVファイル（全フィールド）
+│   ├── full-json/ # 完全版JSONファイル（全フィールド）
+│   ├── full-jsonp/ # 完全版JSONPファイル（全フィールド）
+│   ├── min-csv/ # 最小版CSVファイル（主要フィールドのみ）
+│   ├── min-json/ # 最小版JSONファイル（主要フィールドのみ）
+│   └── min-jsonp/ # 最小版JSONPファイル（主要フィールドのみ）
+│
+├── script/ # データ処理スクリプト
+│   ├── bin/ # 実行ファイル
+│   │   └── cli.ts # メイン処理スクリプト
+│   ├── src/ # ソースコード
+│   │   ├── const.ts # 定数ファイル
+│   │   ├── error.ts # エラー定義
+│   │   ├── indexByZipCodePrefix.ts # 郵便番号上3桁にによるインデックス化
+│   │   ├── normalizeTownNames.ts # 町名の正規化処理
+│   │   ├── output.ts # データの更新処理
+│   │   └── utilities.ts # HTTP通信・エンコーディング変換等のユーティリティ
+│   ├── package.json # 依存関係とスクリプト定義
+│   ├── package-lock.json # 依存関係
+│   └── tsconfig.json # TypeScriptの設定
+│
+└── .github/ # Github設定
+│   └── workflows #GithubActions CI設定
+│       ├── test.yml # push時のテスト
+│       └── update-zipcode-data.yml 郵便番号データ定期更新処理
+│
+└── README.md # このファイル
 ```
 
 ## セットアップ
