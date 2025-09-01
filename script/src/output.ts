@@ -73,7 +73,7 @@ export const removeOldDirectories = async () => {
  */
 export const makeNewDirectories = async () => {
   try {
-    return Promise.all(
+    return await Promise.all(
       DIR_NAMES.map(dir => fs.mkdir(path.join(SAVE_DIRECTORY, dir)))
     )
   } catch(error) {
