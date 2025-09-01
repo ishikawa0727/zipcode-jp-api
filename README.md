@@ -72,7 +72,7 @@ zipcode-jp-api/
 │   ├── package-lock.json # 依存関係
 │   └── tsconfig.json # TypeScriptの設定
 │
-└── .github/ # Github設定
+├── .github/ # Github設定
 │   └── workflows #GithubActions CI設定
 │       ├── test.yml # push時のテスト
 │       └── update-zipcode-data.yml 郵便番号データ定期更新処理
